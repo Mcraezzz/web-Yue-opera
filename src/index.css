@@ -1,0 +1,268 @@
+:root {
+  /* 主色 - 70%浅底 */
+  --color-yuebai: #fdfdfc;     /* 月白（更通透的浅背景） */
+  --color-danyu: #f4f5f2;      /* 淡玉色（用于浅色区次级背景） */
+  
+  /* 深色舞台 - 20% */
+  --color-stage: #15171a;      /* 舞台墨黑 */
+  --color-stage-light: #22262a;/* 舞台次深色 */
+  
+  /* 高饱和点缀 - 10% */
+  --color-yanzhi: #a63a48;     /* 胭脂红（主按钮/强调） */
+  --color-zhucui: #1d7b7b;     /* 珠翠蓝（次按钮/重点标签） */
+  
+  /* 辅色与文字 */
+  --color-daiqing: #3a5154;    /* 黛青（浅底上的标题字） */
+  --color-mohei: #1f2326;      /* 墨黑（正文字体） */
+  
+  /* 分隔线、边框、小装饰 */
+  --color-liujin: #dcd0c0;     /* 浅灰金色 */
+  --color-honglian: #8c2323;   /* 戏台红帘（少量点缀） */
+
+  --font-title: 'Noto Serif SC', STSong, 'Songti SC', serif;
+  --font-calligraphy: 'Ma Shan Zheng', cursive;
+  --font-body: 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--color-mohei);
+  background: var(--color-yuebai);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-yuebai);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-liujin);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-yanzhi);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(166, 58, 72, 0.18);
+  color: var(--color-honglian);
+}
+
+#root {
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s ease;
+}
+
+p {
+  margin: 0;
+}
+
+.section-eyebrow {
+  display: block;
+  margin: 0 0 14px;
+  color: var(--color-yanzhi);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 6px;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.section-eyebrow-center {
+  text-align: center;
+}
+
+/* ===== Entry Animation ===== */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pageFadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page,
+.page-container {
+  animation: pageFadeSlideIn 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Route transition wrapper */
+.route-wrapper {
+  animation: routeFadeIn 0.4s ease forwards;
+}
+
+@keyframes routeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== Scroll Reveal Animations ===== */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-up.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 错落特征卡片的揭示，结合自身staggered的Y轴偏移 */
+.feature-card.reveal-up.staggered {
+  transform: translateY(110px); /* 50 + 60 */
+}
+.feature-card.reveal-up.revealed.staggered {
+  transform: translateY(60px);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+.reveal-delay-7 { transition-delay: 0.7s; }
+.reveal-delay-8 { transition-delay: 0.8s; }
+
+/* Scroll reveal variants */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+              transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+              transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+              transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Line draw animation */
+.line-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.line-draw.revealed {
+  transform: scaleX(1);
+}
+
+/* ===== Button Ripple ===== */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .reveal-up,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale,
+  .line-draw,
+  .ripple {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

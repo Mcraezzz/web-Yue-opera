@@ -1,0 +1,16 @@
+[Unit]
+Description=Yueju Spring Boot Backend
+After=network.target mysql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/yueju
+EnvironmentFile=/opt/yueju/.env
+ExecStart=/usr/bin/java -jar /opt/yueju/backend-spring.jar
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
