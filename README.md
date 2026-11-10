@@ -1,4 +1,11 @@
-# 越韵清音
+# 越韵清音 | Yueyun Qingyin
+
+**越剧文化知识与多模态智能交互平台**  
+**Yue Opera Knowledge and Multimodal AI Interaction Platform**
+
+[中文说明](#中文说明) | [English](#english)
+
+## 中文说明
 
 > 模型权重和全剧视频按项目所有者要求单独保存，恢复方法见 [大文件恢复说明](docs/LARGE_ASSETS.md)。PSD 和设计输出 PNG 使用 Git LFS，克隆后请执行 `git lfs pull`。
 
@@ -167,3 +174,176 @@ curl -X POST http://127.0.0.1:8080/api/auth/login \
 - `deploy/backend.env.example`
 
 部署包与构建产物目录如 `dist/`、`yueju-deploy-package/`、`node_modules/`、日志文件、调试浏览器 profile 和 `tmp/` 不属于核心源码，维护时应避免把它们当作业务代码修改。
+
+## English
+
+### Overview
+
+**Yueyun Qingyin** is a full-stack web platform for exploring and sharing Yue opera culture. Its full title is **Yue Opera Knowledge and Multimodal AI Interaction Platform**. Built with React and Vite on the frontend and Spring Boot and MySQL on the backend, it brings together cultural knowledge, repertoire interaction, AI chat, image understanding, image generation, and audio/video analysis. Integrations include a Volcengine Ark-compatible API, FunASR, librosa, and ffmpeg.
+
+Deployment address: [http://8.148.250.84/](http://8.148.250.84/).
+
+**Repository assets:** Model weights and full-length videos are stored separately and are not included in this repository. See [Large Asset Recovery](docs/LARGE_ASSETS.md) for model sources and expected video filenames. No downloadable video distribution URL is currently provided; restore authorized videos from the original project backup. PSD files and design-output PNGs use Git LFS. Install Git LFS and run `git lfs pull` after cloning.
+
+### Features
+
+- **Home:** An introduction to Yue opera, historical milestones, repertoire and school highlights, backstage stories, AI tools, a daily program, and a quiz.
+- **Quiz:** A 60-question bank in `src/data/yuejuQuiz.ts`; each session randomly selects 10 questions and provides immediate explanations.
+- **History timeline:** The origins of Yue opera, male and female troupes, its arrival in Shanghai, and the development of reformed Yue opera.
+- **Classic repertoire:** Six representative works loaded from `/api/plays`, with local video playback, likes, collections, comments, sharing, and browsing history.
+- **Classic arias:** Six audio excerpts in `public/data/classic-arias.json`, with synchronized lyrics, keywords, plot context, school and technique notes, emotion curves, and energy charts.
+- **Video feature visualization:** Six local full-length videos covered by `public/data/video-feature-analyses.json`, with approximately 180 feature points per video for pitch, rhythm, energy, and emotion displays synchronized with playback.
+- **Singing practice:** Local analysis of uploaded practice recordings through the Web Audio API, with pitch, energy, emotion curves, and similarity scores against reference excerpts.
+- **Artists and schools:** Introductions to representative artists, performance schools, and their artistic characteristics.
+- **Onstage and backstage:** Cards, hotspots, and detail views covering costumes, headdresses, makeup, scenery, rehearsals, and orchestras.
+- **News:** Items retrieved from `/api/news`, with browsing-history recording when articles are opened.
+- **Search:** Site knowledge search through `/api/search`, covering works, news, schools, performers, history, singing, staging, costumes, and videos.
+- **AI tools:** Conversational assistance, image understanding, and image generation, with conversation and generation history for signed-in users.
+- **Accounts:** Registration, login, logout, authentication-state synchronization across browser tabs, and a profile showing likes, collections, comments, and browsing history.
+
+### Technology
+
+- **Frontend:** React 19, React Router HashRouter, TypeScript, Vite, react-icons, and plain CSS.
+- **Backend:** Java 21, Spring Boot 4.0.6, Spring Web MVC, Spring JDBC, Spring Validation, Jackson, and MySQL Connector/J.
+- **Database:** MySQL. `DatabaseInitializer` creates tables and inserts demonstration data at startup.
+- **AI:** A Volcengine Ark-compatible API using `doubao-seed-2-0-lite-260428` by default. `AI_THINKING_TYPE=disabled` disables deep thinking to reduce response latency. Image generation uses `doubao-seedream-5-0-260128`.
+- **Media analysis:** FunASR paraformer-zh for keyword assistance, librosa for audio features, and ffmpeg/imageio-ffmpeg for extraction. Additional paths are reserved for Whisper, WhisperX, and CosyVoice.
+- **Design and documentation tools:** Pillow, ReportLab, and Playwright for posters, overview graphics, screenshots, and competition documents.
+
+### Project Structure
+
+```text
+.
+├─ src/                         # React frontend
+│  ├─ components/               # Layout, Navbar, AuthModal, ChatWidget
+│  ├─ pages/                    # Home, history, repertoire, schools, news, AI, search, profile
+│  ├─ hooks/                    # AI and browsing-history hooks
+│  ├─ data/                     # Quiz question bank
+│  └─ assets/                   # Images and AI-generated artwork
+├─ backend-spring/              # Spring Boot backend
+│  └─ src/main/java/com/yueju/backend/
+│     ├─ controller/            # REST controllers
+│     ├─ service/               # Authentication, content, interaction, AI, search, media
+│     ├─ dto/                   # API data transfer objects
+│     └─ config/                # CORS configuration
+├─ public/
+│  ├─ data/                     # Aria and video-analysis JSON for the frontend
+│  ├─ audio/                    # Classic aria excerpts
+│  └─ videos/                   # Full-length videos; restore separately
+├─ data/                        # Offline analysis data
+├─ scripts/                     # Development, analysis, and asset-generation scripts
+├─ docs/                        # Media-analysis plans and competition materials
+├─ deploy/                      # Nginx, systemd, and deployment instructions
+├─ design_input/                # Design templates
+├─ design_output/               # Posters, graphics, and screenshots
+├─ package.json                 # Frontend scripts and dependencies
+├─ vite.config.ts               # Vite configuration and /api development proxy
+├─ README.md
+└─ PROJECT_REPORT.md
+```
+
+### Local Setup
+
+Install Node.js, Java 21, and MySQL. Create the database:
+
+```sql
+CREATE DATABASE web_yueju DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Copy the environment template in PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Set the MySQL connection parameters in `.env`. To enable AI chat, image understanding, and image generation, also configure `VOLCENGINE_API_KEY`. Keep real API keys in server-side environment variables. Restore the separate model and video assets if you need their associated features.
+
+Install dependencies and start the application:
+
+```powershell
+npm install
+npm run dev
+```
+
+Alternatively, start the frontend and backend in separate terminals:
+
+```powershell
+npm run dev:web
+npm run dev:spring
+```
+
+Default endpoints:
+
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend: [http://localhost:8080](http://localhost:8080)
+- Development proxy: Vite forwards `/api` to `http://localhost:8080`.
+
+### Common Commands
+
+```powershell
+npm run dev        # Start Vite and Spring Boot together
+npm run dev:web    # Start the frontend only
+npm run dev:spring # Start the backend only
+npm run build      # Run TypeScript checks and build the frontend
+npm run lint       # Run ESLint
+npm run preview    # Preview the frontend build
+```
+
+Package the backend:
+
+```powershell
+cd backend-spring
+.\mvnw.cmd -DskipTests package
+```
+
+Example health and demonstration-login checks in a Bash-compatible shell:
+
+```bash
+curl http://127.0.0.1:8080/api/health
+curl -X POST http://127.0.0.1:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","password":"123456"}'
+```
+
+### AI and Media Data
+
+- Chat: `POST /api/ai/chat`, `POST /api/ai/chat/stream`
+- Image understanding: `POST /api/ai/chat/vision`
+- Image generation: `POST /api/ai/image`
+- AI history: `/api/ai/chat/history`, `/api/ai/image/history`
+- Media analysis: `GET /api/media-analyses`, `POST /api/media-analyses/analyze-local`
+- Aria data: `public/data/classic-arias.json`
+- Video features: `public/data/video-feature-analyses.json`
+
+Media-processing scripts are located in `scripts/`:
+
+- `build-classic-arias.py`: Extracts six aria clips and generates lyrics, keywords, and librosa feature curves.
+- `curate-classic-aria-captions.py`: Curates aria captions; FunASR is used only for keyword assistance.
+- `analyze-yueju-video-features.py`: Analyzes six local videos and generates 180-point feature curves for each full video.
+- `enrich-video-plot-nodes.py`: Adds plot milestones to video feature data.
+- `generate-media-analysis.py`: General analysis with media-only, FunASR, Whisper, WhisperX, and transcript-only modes.
+- `generate-yueju-assets.mjs`: Generates site artwork in batches using the Volcengine Ark image-generation API.
+
+### Persistence and Authentication
+
+The backend creates these main database tables at startup:
+
+- `users`, `auth_tokens`
+- `plays`, `news`, `search_items`
+- `play_likes`, `play_collections`, `play_comments`, `play_shares`
+- `ai_chat_messages`, `ai_image_generations`
+- `browsing_history`
+
+Authentication uses database-backed tokens rather than JWTs. The browser stores the original token in `localStorage.yueju_token`, while the database stores only its SHA-256 hash. Passwords use PBKDF2WithHmacSHA512 with a 16-byte salt, 100,000 iterations, and a 512-bit output. Usernames, display names, and comments undergo basic moderation for reserved names, HTML, promotional links, and selected sensitive terms.
+
+### Deployment
+
+For production, serve the frontend `dist/` directory through Nginx and reverse-proxy `/api` to Spring Boot at `127.0.0.1:8080`. Deployment references:
+
+- [Deployment guide](deploy/DEPLOY.md) (Chinese)
+- [Nginx configuration](deploy/nginx-yueju.conf)
+- [systemd service](deploy/yueju-backend.service)
+- [Backend environment template](deploy/backend.env.example)
+- [Large asset recovery instructions](docs/LARGE_ASSETS.md) (Chinese; model and video requirements are summarized above)
+
+Build output, deployment packages, installed dependencies, logs, browser profiles, and temporary files are excluded from the core source. Examples include `dist/`, `yueju-deploy-package/`, `node_modules/`, and `tmp/`. Real environment secrets and local browser data are not committed.
