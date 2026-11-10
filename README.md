@@ -1,6 +1,7 @@
 # 越韵清音 | Yueyun Qingyin
 
-**越剧文化知识与多模态智能交互平台**  
+**越剧文化知识与多模态智能交互平台**
+
 **Yue Opera Knowledge and Multimodal AI Interaction Platform**
 
 [中文说明](#中文说明) | [English](#english)
@@ -12,6 +13,16 @@
 “越韵清音”是一个以越剧文化传播为主题的前后端 Web 项目，完整名称为“越韵清音—越剧文化知识与多模态智能交互平台”。项目采用 React + Vite 构建前端，Spring Boot + MySQL 提供后端 API，并接入火山方舟兼容接口、FunASR、librosa、ffmpeg 等工具，形成越剧知识展示、剧目互动、AI 问答/识图/生图和音视频智能解析的一体化体验。
 
 线上访问地址：http://8.148.250.84/
+
+## 架构与维护
+
+项目采用 React 前端、Spring Boot 业务后端和可选 Python RAG 服务。2026-11-10 已改进开发进程管理、环境变量优先级、跨域配置、错误处理、演示账号初始化、媒体运维接口和 AI 流式代理。完整结构、配置变更、验证结果与后续计划见 [中英文架构说明](docs/ARCHITECTURE.md)。
+
+- `npm run dev` 默认启动前后端；RAG 仅在 `RAG_ENABLED=true` 时启动，其失败不会拖停核心服务。
+- `npm run dev:spring`、`npm run dev:api` 和 `npm start` 共用跨平台启动器并读取根目录 `.env`；系统环境变量优先。
+- 演示账号默认不创建。需要时设置 `DEMO_ENABLED=true` 和至少 12 字符的 `DEMO_PASSWORD`；已有账号密码不会被覆盖。
+- 媒体分析写接口默认关闭。只有设置 `MEDIA_LOCAL_ANALYSIS_ENABLED=true`、至少 32 字符的 `MEDIA_OPERATOR_KEY` 并携带 `X-Media-Operator-Key` 请求头，才能触发分析。
+- 回归检查：`npm run test:runtime`；后端目录运行 `./mvnw test`（Windows 使用 `.\mvnw.cmd test`）。
 
 ## 当前功能
 
@@ -104,7 +115,7 @@ npm run dev:spring
 
 - 前端：http://localhost:5173
 - 后端：http://localhost:8080
-- 开发代理：Vite 会将 `/api` 转发到 `http://localhost:8080`
+- 开发代理：Vite 会将 `/api` 转发到 `http://127.0.0.1:8080`；设置 `SPRING_PORT` 后代理端口同步变化
 
 ## 常用命令
 
@@ -124,13 +135,13 @@ cd backend-spring
 .\mvnw.cmd -DskipTests package
 ```
 
-常用检查：
+健康检查与已注册账号的登录示例：
 
 ```bash
 curl http://127.0.0.1:8080/api/health
 curl -X POST http://127.0.0.1:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"demo","password":"123456"}'
+  -d '{"username":"your-registered-username","password":"your-password"}'
 ```
 
 ## AI 与媒体数据
@@ -139,7 +150,7 @@ curl -X POST http://127.0.0.1:8080/api/auth/login \
 - AI 识图接口：`POST /api/ai/chat/vision`
 - AI 生图接口：`POST /api/ai/image`
 - AI 历史接口：`/api/ai/chat/history`、`/api/ai/image/history`
-- 媒体分析接口：`GET /api/media-analyses`、`POST /api/media-analyses/analyze-local`
+- 媒体分析读取：`GET /api/media-analyses`；运维写接口 `POST /api/media-analyses/analyze-local` 默认关闭，需单独启用并提供运维密钥。
 - 前端唱段数据：`public/data/classic-arias.json`
 - 前端视频特征：`public/data/video-feature-analyses.json`
 
@@ -184,6 +195,16 @@ curl -X POST http://127.0.0.1:8080/api/auth/login \
 Deployment address: [http://8.148.250.84/](http://8.148.250.84/).
 
 **Repository assets:** Model weights and full-length videos are stored separately and are not included in this repository. See [Large Asset Recovery](docs/LARGE_ASSETS.md) for model sources and expected video filenames. No downloadable video distribution URL is currently provided; restore authorized videos from the original project backup. PSD files and design-output PNGs use Git LFS. Install Git LFS and run `git lfs pull` after cloning.
+
+### Architecture and Maintenance
+
+The platform uses a React frontend, a Spring Boot business backend, and optional Python RAG. The 2026-11-10 update improves process lifecycle, configuration precedence, CORS, error handling, demo-account seeding, the media operator boundary, and AI streaming through Nginx. See the [bilingual architecture review](docs/ARCHITECTURE.md) for the structure, configuration changes, validation, and remaining work.
+
+- `npm run dev` starts the frontend and backend. RAG starts only with `RAG_ENABLED=true`; its failure does not stop core services.
+- `npm run dev:spring`, `npm run dev:api`, and `npm start` share a cross-platform launcher that loads the root `.env`. System environment variables take precedence.
+- Demo creation is off by default. Set `DEMO_ENABLED=true` and `DEMO_PASSWORD` with at least 12 characters to opt in. Existing account passwords are preserved.
+- Media writes are off by default. Enable `MEDIA_LOCAL_ANALYSIS_ENABLED`, configure `MEDIA_OPERATOR_KEY` with at least 32 characters, and send it in `X-Media-Operator-Key` to run an operator analysis job.
+- Regression checks: `npm run test:runtime` and `./mvnw test` in the backend directory (`.\mvnw.cmd test` on Windows).
 
 ### Features
 
@@ -276,7 +297,7 @@ Default endpoints:
 
 - Frontend: [http://localhost:5173](http://localhost:5173)
 - Backend: [http://localhost:8080](http://localhost:8080)
-- Development proxy: Vite forwards `/api` to `http://localhost:8080`.
+- Development proxy: Vite forwards `/api` to `http://127.0.0.1:8080`, following `SPRING_PORT` when overridden.
 
 ### Common Commands
 
@@ -296,13 +317,13 @@ cd backend-spring
 .\mvnw.cmd -DskipTests package
 ```
 
-Example health and demonstration-login checks in a Bash-compatible shell:
+Example health and registered-account login checks in a Bash-compatible shell:
 
 ```bash
 curl http://127.0.0.1:8080/api/health
 curl -X POST http://127.0.0.1:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"demo","password":"123456"}'
+  -d '{"username":"your-registered-username","password":"your-password"}'
 ```
 
 ### AI and Media Data
@@ -311,7 +332,7 @@ curl -X POST http://127.0.0.1:8080/api/auth/login \
 - Image understanding: `POST /api/ai/chat/vision`
 - Image generation: `POST /api/ai/image`
 - AI history: `/api/ai/chat/history`, `/api/ai/image/history`
-- Media analysis: `GET /api/media-analyses`, `POST /api/media-analyses/analyze-local`
+- Media reads: `GET /api/media-analyses`. Operator writes at `POST /api/media-analyses/analyze-local` are disabled by default and require explicit enablement and an operator key.
 - Aria data: `public/data/classic-arias.json`
 - Video features: `public/data/video-feature-analyses.json`
 
@@ -340,7 +361,7 @@ Authentication uses database-backed tokens rather than JWTs. The browser stores 
 
 For production, serve the frontend `dist/` directory through Nginx and reverse-proxy `/api` to Spring Boot at `127.0.0.1:8080`. Deployment references:
 
-- [Deployment guide](deploy/DEPLOY.md) (Chinese)
+- [Deployment guide](deploy/DEPLOY.md)
 - [Nginx configuration](deploy/nginx-yueju.conf)
 - [systemd service](deploy/yueju-backend.service)
 - [Backend environment template](deploy/backend.env.example)

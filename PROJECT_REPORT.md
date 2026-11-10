@@ -1,6 +1,8 @@
 # 越韵清音 Web 项目综合报告
 
-更新日期：2026-06-02
+更新日期：2026-11-10
+
+本次架构改进与后续计划见 [中英文架构说明](docs/ARCHITECTURE.md)。
 
 ## 1. 项目定位
 
@@ -126,7 +128,8 @@ Spring Boot 4.0.6 / Java 21
 | `PlayInteractionController` | `/api/play-interactions`、点赞、收藏、评论、分享 |
 | `ProfileController` | `/api/profile`、`/api/history` |
 | `AiController` | AI 问答、流式问答、识图、生图、历史读取/清空 |
-| `MediaAnalysisController` | `/api/media-analyses`、`/api/media-analyses/analyze-local` |
+| `MediaAnalysisController` | 公开读取 `/api/media-analyses` |
+| `MediaAnalysisAdminController` | 默认关闭的 `/api/media-analyses/analyze-local`，需独立运维密钥 |
 | `ApiExceptionHandler` | 统一 JSON 错误响应 |
 
 ### 5.2 服务层
@@ -159,7 +162,7 @@ Spring Boot 4.0.6 / Java 21
 | `ai_image_generations` | AI 生图 prompt、最终 prompt、图片 URL |
 | `browsing_history` | 浏览历史、路径、浏览次数和最近访问时间 |
 
-demo 账号为 `demo / 123456`。认证方式不是 JWT，而是数据库持久化随机 Token：浏览器保存 Token 原文，数据库保存 SHA-256 哈希。密码使用 PBKDF2WithHmacSHA512、16 字节 salt、100000 次迭代和 512 bit 输出。
+demo 账号默认不创建；显式配置 `DEMO_ENABLED=true` 与至少 12 字符的 `DEMO_PASSWORD` 后只创建缺失账号，不覆盖已有密码。认证方式不是 JWT，而是数据库持久化随机 Token：浏览器保存 Token 原文，数据库保存 SHA-256 哈希。密码使用 PBKDF2WithHmacSHA512、16 字节 salt、100000 次迭代和 512 bit 输出。
 
 ## 7. AI、模型与工具链
 
@@ -227,7 +230,7 @@ AI 问答不是纯直连模型。它会在直连失败后使用 `KnowledgeSearch
 
 前端依赖和脚本见 `package.json`：
 
-- `npm run dev`：执行 `scripts/dev.mjs`，同时启动 Spring Boot 和 Vite。
+- `npm run dev`：执行 `scripts/dev.mjs`，同时启动 Spring Boot 和 Vite，按 `RAG_ENABLED` 可选启动 Python RAG；其启动失败不影响核心服务。
 - `npm run dev:web`：只启动 Vite。
 - `npm run dev:spring` / `npm run dev:api` / `npm start`：启动 Spring Boot。
 - `npm run build`：执行 `tsc -b && vite build`。

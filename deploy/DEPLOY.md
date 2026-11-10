@@ -42,11 +42,11 @@ sudo mkdir -p /var/www/yueju
 sudo cp -r dist/* /var/www/yueju/
 ```
 
-Copy backend jar and env:
+Build with `./mvnw package` in `backend-spring/` first (Windows: `.\mvnw.cmd package`). From the project root, copy the backend jar and environment template:
 
 ```bash
 sudo mkdir -p /opt/yueju
-sudo cp backend/backend-spring.jar /opt/yueju/backend-spring.jar
+sudo cp backend-spring/target/backend-spring-0.0.1-SNAPSHOT.jar /opt/yueju/backend-spring.jar
 sudo cp deploy/backend.env.example /opt/yueju/.env
 sudo nano /opt/yueju/.env
 ```
@@ -93,3 +93,15 @@ sudo certbot --nginx -d example.com -d www.example.com
 
 The frontend uses relative API paths such as `/api/plays` and `/api/ai/chat`.
 No frontend code change is needed when Nginx proxies `/api/` to Spring Boot.
+
+
+## Architecture Configuration (2026-11-10)
+
+See [ARCHITECTURE.md](../docs/ARCHITECTURE.md) for Chinese and English details.
+
+- Keep `MEDIA_LOCAL_ANALYSIS_ENABLED=false` on public deployments unless the operator endpoint is deliberately required. Enabling it requires a separate `MEDIA_OPERATOR_KEY` of at least 32 characters and the `X-Media-Operator-Key` header. Never bundle this key into frontend code.
+- `DEMO_ENABLED=false` prevents new demo accounts; it does not remove existing accounts or rotate their passwords/tokens. Existing installations need a separate account review.
+- The same-origin Nginx template uses an empty `CORS_ALLOWED_ORIGINS`. If a separate frontend origin calls the backend directly, list that complete origin explicitly.
+- API proxy buffering is disabled for streamed AI output; `proxy_read_timeout` is 300 seconds. Validate changes with `nginx -t` before reloading.
+- RAG is optional and disabled in the example. Provision its models, dependencies, and service separately before setting `RAG_ENABLED=true`.
+- The repository update does not deploy or restart an existing server.

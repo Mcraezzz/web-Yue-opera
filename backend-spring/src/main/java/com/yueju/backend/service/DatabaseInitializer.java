@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 public class DatabaseInitializer implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;
-    private final AuthService authService;
+    private final DemoAccountSeeder demoAccountSeeder;
 
-    public DatabaseInitializer(JdbcTemplate jdbcTemplate, AuthService authService) {
+    public DatabaseInitializer(JdbcTemplate jdbcTemplate, DemoAccountSeeder demoAccountSeeder) {
         this.jdbcTemplate = jdbcTemplate;
-        this.authService = authService;
+        this.demoAccountSeeder = demoAccountSeeder;
     }
 
     @Override
@@ -190,19 +190,7 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void seed() {
-        jdbcTemplate.update(
-                """
-                INSERT INTO users (username, password_hash, nickname, bio) VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                  password_hash = VALUES(password_hash),
-                  nickname = VALUES(nickname),
-                  bio = VALUES(bio)
-                """,
-                "demo",
-                authService.hashPassword("123456"),
-                "戏曲爱好者A8848",
-                "愿在江南水韵与婉转清音中，寻一处心灵栖息地。"
-        );
+        demoAccountSeeder.seed();
 
         Object[][] plays = {
                 {"梁山伯与祝英台", "爱情悲剧", "越剧最具代表性的经典剧目，讲述梁山伯与祝英台的凄美爱情故事。1953 年被拍摄成中国第一部彩色戏曲电影。", "play-1", 128, 56, 1},

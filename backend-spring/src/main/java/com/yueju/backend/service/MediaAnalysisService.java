@@ -29,6 +29,7 @@ public class MediaAnalysisService {
     private final Path configuredAnalysisScript;
     private final String pythonCommand;
     private final String defaultInputPath;
+    private final java.util.concurrent.atomic.AtomicBoolean analysisRunning = new java.util.concurrent.atomic.AtomicBoolean();
 
     private static final List<MediaAnalysisItem> MEDIA_ANALYSES = List.of(
             new MediaAnalysisItem(
@@ -141,7 +142,7 @@ public class MediaAnalysisService {
             @Value("${yueju.media.analysis-file:../data/media-analyses.json}") String analysisFile,
             @Value("${yueju.media.analysis-script:../scripts/generate-media-analysis.py}") String analysisScript,
             @Value("${yueju.media.python:python}") String pythonCommand,
-            @Value("${yueju.media.default-input:C:/Users/22672/Downloads/梁山伯与祝英台(吴凤花.陈飞).mp4}") String defaultInputPath
+            @Value("${yueju.media.default-input:public/videos/liangzhu.mp4}") String defaultInputPath
     ) {
         this.objectMapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -178,6 +179,11 @@ public class MediaAnalysisService {
         int maxAudioSeconds = positiveOrDefault(request.maxAudioSeconds(), 600);
         int maxCaptions = positiveOrDefault(request.maxCaptions(), 12);
 
+        if (!analysisRunning.compareAndSet(false, true)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT, "已有媒体分析任务正在运行");
+        }
+        Process process = null;
         try {
             Files.createDirectories(analysisFile.getParent());
             ProcessBuilder processBuilder = new ProcessBuilder(
@@ -198,7 +204,7 @@ public class MediaAnalysisService {
             processBuilder.redirectErrorStream(true);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.to(logFile.toFile()));
 
-            Process process = processBuilder.start();
+            process = processBuilder.start();
             boolean finished = process.waitFor(20, TimeUnit.MINUTES);
             if (!finished) {
                 process.destroyForcibly();
@@ -213,6 +219,9 @@ public class MediaAnalysisService {
             return new MediaAnalysisRunResponse(false, "模型分析被中断。", logFile.toString(), getMediaAnalyses());
         } catch (Exception ex) {
             return new MediaAnalysisRunResponse(false, "模型分析启动失败：" + ex.getMessage(), logFile.toString(), getMediaAnalyses());
+        } finally {
+            if (process != null && process.isAlive()) process.destroyForcibly();
+            analysisRunning.set(false);
         }
     }
 
